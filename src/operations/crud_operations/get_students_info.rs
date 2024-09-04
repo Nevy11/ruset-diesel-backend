@@ -1,4 +1,3 @@
-use std::env::args;
 use std::io::stdin;
 
 use crate::{
@@ -9,15 +8,9 @@ use crate::{
 use diesel::prelude::*;
 use diesel::SelectableHelper;
 
-pub fn get_students_info() {
-    let mut data = String::new();
-    println!("Enter the reg number to fetch the data");
-    stdin().read_line(&mut data).unwrap();
+pub fn get_students_info() -> Option<StudentInfo> {
+    let data = "4";
 
-    let data = data.trim();
-
-    // let post_id = args().nth(1).expect("get_posts requires a post id");
-    // println!("post_id: {}", post_id);
     let connection = &mut establish_connection();
     let post = studentinfo
         .find(&data)
@@ -26,11 +19,10 @@ pub fn get_students_info() {
         .optional();
 
     match post {
-        Ok(Some(info)) => println!(
-            "Info with id: {}, is called: {}",
-            info.reg_no, info.first_name
-        ),
-        Ok(None) => println!("failed find reg no {}", data),
-        Err(_) => println!("An error occured while fetching info: {}", data),
+        Ok(Some(info)) => Some(info),
+        Ok(None) => None,
+        Err(err) => {
+            panic!("failed loading post: {}", err);
+        }
     }
 }
